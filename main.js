@@ -93,7 +93,7 @@ function initializeClient() {
 
     // coleta dos contatos
     client.on('ready', async () => {
-        log.info('WhatsApp pronto!', qr);
+        log.info('WhatsApp pronto!');
         qrCode = null;
 
         mainWindow.webContents.send('searchContacts', qrCode);
