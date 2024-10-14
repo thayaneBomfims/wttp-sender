@@ -157,7 +157,11 @@
         // filtra contato por nome
         function filterContacts() {
             const searchTerm = document.getElementById('search').value.toLowerCase();
-            filteredContacts = contacts.filter(contact => contact.name.toLowerCase().includes(searchTerm));
+            filteredContacts = filteredContacts.filter(contact => contact.name.toLowerCase().includes(searchTerm));
+
+            if (searchTerm === '') {
+                filteredContacts = contacts;
+            }
             currentPage = 1;
             renderContacts();
         }
@@ -192,6 +196,7 @@
         // Contatos
         ipcRenderer.on('contacts', (event, data) => {
             hideLoading();
+            contacts = data;
             filteredContacts = data; //todos os contatos conversados
             contactsDiv.style.display = 'block';
             renderContacts();
