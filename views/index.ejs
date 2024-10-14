@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" type="image" href="../public/img/wtp-logo.png" />
+    <link rel="stylesheet" type="text/css" href="./styles.css" media="screen" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Mate&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <title>Sender WhatsApp</title>
+</head>
+
+<body>
+
+    <div class="header">
+        <div class="header-logo">
+            <img src="../public/img/wtp-logo.png">
+            <p>Envio de mensagens em massa através do WhatsApp</p>
+        </div>
+
+        <di>
+            <button class="button" id="logout-button">Logout</button>
+        </di>
+    </div>
+
+    <!-- Indicador de carregamento -->
+    <div id="loading">
+        <span class="loader"></span>
+        <div class="spinner"></div>
+    </div>
+
+    <div class="container">
+
+        <!-- QR code -->
+        <div id="qr-code">
+            <h2>Escaneie o QR code no WhatsApp do celular</h2>
+            <img id="qr-content" alt="QR Code" />
+        </div>
+
+        <!-- lista de contatos -->
+        <div id="contacts-list">
+            <h2>Selecione os contatos e escreva a mensagem</h2>
+
+            <div>
+                <input type="text" id="search" placeholder="Pesquisar contatos">
+            </div>
+
+            <ul id="contacts"></ul>
+
+            <div id="pagination">
+                <button id="prev-page" class="button" disabled>Anterior</button>
+                <span id="page-number">1</span>
+                <button id="next-page" class="button">Próxima</button>
+            </div>
+
+            <label class="checkbox-label pt-15">
+                <input type="checkbox" id="select-all">
+                <strong>Selecionar Todos</strong>
+            </label>
+
+            <form id="message-form">
+                <div>
+                    <label for="message">Digite sua mensagem:</label><br />
+                    <textarea id="message" name="message" rows="8" placeholder="Escreva sua mensagem aqui"></textarea>
+                </div>
+                <button type="submit" class="button">Enviar Mensagem</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        const Swal = require('sweetalert2')
+
+        // paginação
+        const pageSize = 10;
+        let currentPage = 1;
+        let filteredContacts = [];
+        let contacts = [];
+        let selectedContacts = {};
+        const loading = document.getElementById('loading');
+        const contactsList = document.getElementById('contacts');
+        const contactsDiv = document.getElementById('contacts-list');
+        const qrCodeElement = document.getElementById('qr-code');
+
+        function showLoading() {
+            loading.style.display = 'block';
+            qrCodeElement.style.display = 'none';
+            contactsDiv.style.display = 'none';
+        }
+
+        function hideLoading() {
+            loading.style.display = 'none';
+        }
+
+        let selectedContactIds = new Set(); // Armazena os IDs dos contatos selecionados
+
+        // Função para selecionar/deselecionar todos os contatos
+        function toggleSelectAll(selectAllCheckbox) {
+            const allContacts = filteredContacts; // Todos os contatos filtrados
+            if (selectAllCheckbox.checked) {
+                // Se o checkbox de "Selecionar Todos" estiver marcado
+                allContacts.forEach(contact => {
+                    selectedContactIds.add(contact.id); // Adiciona o ID do contato ao conjunto
+                });
+            } else {
+                // Se o checkbox de "Selecionar Todos" estiver desmarcado
+                allContacts.forEach(contact => {
+                    selectedContactIds.delete(contact.id); // Remove o ID do contato do conjunto
+                });
+            }
+            renderContacts(); // Atualiza a renderização para refletir a seleção
+        }
+
+        // filtra lista paginada
+        function renderContacts() {
+            contactsList.innerHTML = '';
+
+            const start = (currentPage - 1) * pageSize;
+            const end = start + pageSize;
+            const pageContacts = filteredContacts.slice(start, end);
+
+            pageContacts.forEach(contact => {
+                const isChecked = selectedContactIds.has(contact.id);
+
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="contacts" value="${contact.id}" ${isChecked ? 'checked' : ''} onchange="toggleContactSelection(this)">
+                        <strong>${contact.name}</strong> (${contact.number})
+                    </label>
+                `;
+                contactsList.appendChild(li);
+            });
+
+            document.getElementById('page-number').textContent = currentPage;
+            document.getElementById('prev-page').disabled = currentPage === 1;
+            document.getElementById('next-page').disabled = end >= filteredContacts.length;
+        }
+
+        function toggleContactSelection(checkbox) {
+            if (checkbox.checked) {
+                selectedContactIds.add(checkbox.value); // Adiciona o ID do contato ao conjunto
+            } else {
+                selectedContactIds.delete(checkbox.value); // Remove o ID do contato do conjunto
+            }
+        }
+
+        document.getElementById('select-all').addEventListener('change', function () {
+            toggleSelectAll(this); // Chama a função ao alterar o estado do checkbox
+        });
+
+        // filtra contato por nome
+        function filterContacts() {
+            const searchTerm = document.getElementById('search').value.toLowerCase();
+            filteredContacts = contacts.filter(contact => contact.name.toLowerCase().includes(searchTerm));
+            currentPage = 1;
+            renderContacts();
+        }
+        document.getElementById('search').addEventListener('input', filterContacts);
+
+        document.getElementById('prev-page').addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderContacts();
+            }
+        });
+        document.getElementById('next-page').addEventListener('click', () => {
+            if ((currentPage * pageSize) < filteredContacts.length) {
+                currentPage++;
+                renderContacts();
+            }
+        });
+
+        // QR code recebido
+        ipcRenderer.on('qr', (event, qr) => {
+            hideLoading();
+            document.getElementById('qr-code').style.display = 'block';
+            document.getElementById('contacts-list').style.display = 'none';
+            document.getElementById('qr-content').src = qr;
+        });
+
+        ipcRenderer.on('searchContacts', (event, qr) => {
+
+            showLoading();
+        });
+
+        // Contatos
+        ipcRenderer.on('contacts', (event, data) => {
+            hideLoading();
+            filteredContacts = data; //todos os contatos conversados
+            contactsDiv.style.display = 'block';
+            renderContacts();
+        });
+
+        // envia a mensagem
+        document.getElementById('message-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const selectedContacts = Array.from(selectedContactIds);
+            const message = document.getElementById('message').value;
+
+            if (selectedContacts.length === 0) {
+                Swal.fire({
+                    title: 'Nenhum contato selecionado',
+                    text: `Por favor, selecione pelo menos um contato para enviar a mensagem.`,
+                    icon: 'error',
+                })
+                return;
+            }
+
+            ipcRenderer.send('send-message', { contacts: selectedContacts, message });
+        });
+
+        ipcRenderer.on('alert', (event, messageInfo) => {
+            if (messageInfo.errors.length === 0) {
+                Swal.fire({
+                    title: "Mensagens enviadas com sucesso!",
+                    text: `Sua mensagem foi enviada para os contatos selecionados`,
+                    icon: "success"
+                });
+            }
+            else {
+                Swal.fire({
+                    title: 'Erro no envio das mensagens!',
+                    html: `
+                        <b>Contatos que não receberam a mensagem:</b>
+                        <br/>
+                        ${messageInfo.errors}
+                    `,
+                    icon: 'error',
+                })
+            }
+        });
+
+        document.getElementById('logout-button').addEventListener('click', function () {
+            showLoading()
+            ipcRenderer.send('logout');
+        });
+
+        showLoading();
+
+    </script>
+</body>
+
+</html>

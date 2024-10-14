@@ -1,0 +1,233 @@
+body {
+    width: 100%;
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.container {
+    width: 1000px;
+    margin: 0;
+    padding-left: 60px;
+}
+
+.header {
+    min-height: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0px 4px 7px 0px rgb(0 0 0 / 12%);
+    justify-content: space-between;
+}
+
+.header-logo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header p {
+    margin: 8px;
+    font-size: 16px;
+    font-weight: 500;
+
+}
+
+.header img {
+    margin: 0 0 0 50px;
+    width: 50px;
+    height: 50px;
+
+}
+
+.header #logout-button {
+    margin: 0 50px 0 0;
+}
+
+#qr-code {
+    display: none;
+}
+
+#qr-code h2 {
+    font-family: 'Mate', serif;
+    font-size: 18px;
+}
+
+#contacts-list {
+    display: none;
+}
+
+#contacts-list h2 {
+    font-family: 'Mate', serif;
+    font-size: 18px;
+}
+
+#loading {
+    display: none;
+    text-align: center;
+}
+
+input,
+textarea {
+    background-color: transparent;
+    color: black;
+    border-radius: 6px;
+    border: 1px solid rgb(145, 179, 106);
+    padding: 5px 30px 5px 15px;
+    font-size: 12px;
+    margin-bottom: 8px;
+    font-family: 'Roboto', sans-serif;
+}
+
+.button {
+    background-color: rgb(145, 179, 106);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    border-radius: 25px;
+    box-shadow: none;
+    border: 0;
+    width: unset;
+    padding: 10px;
+    height: 100%;
+    cursor: pointer;
+    transition: filter 0.2s;
+    text-decoration: none;
+}
+
+.button a {
+    text-decoration: none;
+    color: white;
+}
+
+.button &:hover {
+    filter: brightness(0.9);
+}
+
+#pagination {
+    display: flex;
+    align-items: center;
+    margin-top: 18px;
+}
+
+#page-number {
+    font-size: 18px;
+    color: rgb(107 137 74);
+    padding-right: 8px;
+    padding-left: 8px;
+}
+
+#search {
+    height: 30px;
+    margin-bottom: 25px;
+}
+
+input &:focus-visible {
+    outline: 0;
+}
+
+input &::placeholder {
+    color: #cfcfcf;
+}
+
+#message-form {
+    padding-top: 50px;
+}
+
+#message-form textarea {
+    margin-top: 14px;
+}
+
+#message {
+    width: 800px;
+}
+
+.checkbox-label {
+    display: flex;
+}
+
+.pt-15 {
+    padding-top: 15px;
+}
+
+input[type="checkbox"] {
+    appearance: none;
+    background-color: #fff;
+    margin: 0 8px 8px 0;
+    font: inherit;
+    color: currentColor;
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    padding: 0 !important;
+
+    transform: translateY(-0.075em);
+
+    display: grid;
+    place-content: center;
+}
+
+input[type="checkbox"]::before {
+    content: "";
+    width: 0.65em;
+    height: 0.65em;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+    transform: scale(0);
+    transform-origin: bottom left;
+    transition: 120ms transform ease-in-out;
+    box-shadow: inset 1em 1em var(--form-control-color);
+    /* Windows High Contrast Mode */
+    background-color: CanvasText;
+}
+
+input[type="checkbox"]:checked::before {
+    transform: scale(1);
+}
+
+input[type="checkbox"]:focus {
+    outline: max(2px, 0.15em) solid rgb(107 137 74);
+    outline-offset: max(2px, 0.15em);
+}
+
+.loader {
+    margin-top: 50px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: inline-block;
+    border-top: 4px solid #000000;
+    border-right: 4px solid transparent;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+}
+
+.loader::after {
+    content: '';
+    box-sizing: border-box;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border-left: 4px solid rgb(107 137 74);
+    border-bottom: 4px solid transparent;
+    animation: rotation 0.5s linear infinite reverse;
+}
+
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}

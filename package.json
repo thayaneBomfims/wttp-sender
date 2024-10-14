@@ -1,0 +1,34 @@
+{
+  "name": "wttp-sender",
+  "version": "1.0.0",
+  "description": "Facilitador para envio de mensagens em massa com whatsapp",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "build": {
+    "files": [
+      "main.js",
+      "views/**/*",
+      "public/**/*"
+    ]
+  },
+  "keywords": [],
+  "author": "Thayane Bomfim",
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "ejs-electron": "^3.0.0",
+    "electron-log": "^5.2.0",
+    "fs": "^0.0.1-security",
+    "qrcode": "^1.5.4",
+    "qrcode-terminal": "^0.12.0",
+    "sweetalert2": "^11.14.3",
+    "whatsapp-web.js": "^1.26.0"
+  },
+  "devDependencies": {
+    "electron": "^32.2.0",
+    "electron-builder": "^25.1.8"
+  }
+}
