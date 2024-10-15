@@ -99,7 +99,10 @@ function initializeClient() {
         mainWindow.webContents.send('searchContacts', qrCode);
         // get contatos
         const chats = await client.getChats();
-        const contacts = await Promise.all(chats.map(async (chat) => {
+        const activeChats = chats.filter(chat => !chat.archived && !chat.isGroup);
+
+        const contacts = await Promise.all(activeChats.map(async (chat) => {
+
             return {
                 name: chat.name || chat.id.user,
                 id: chat.id._serialized,
